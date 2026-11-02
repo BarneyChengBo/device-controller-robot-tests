@@ -1,2 +1,2 @@
-# device-controller-robot-tests
-Robot Framework test suite for a simulated industrial device controller (Java TCP server), with CI in GitHub Actions.
+# motor-controller-test-suite
+Java test suite for a simulated motor controller with a TCP text protocol, using JUnit 5 and CI in GitHub Actions.
