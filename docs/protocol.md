@@ -121,3 +121,44 @@ Note: an `ERR` reply to an invalid command does not change the state. Only `FAUL
       For example `RESET 60` (  an extra parameter )
 - **Example:**
     - Send `RESET` while in ERROR mode, receive `OK STATE=IDLE SPEED=0`
+ 
+
+## 5. Error Codes
+
+
+ General rule: Format and range errors (`ERR 1`, `ERR 2`, `ERR 3`) are checked before the state. `ERR 4` is returned only for commands that are otherwise valid.
+
+
+| Error Code | Name            | Conditions                                                                                                                                                                                         |
+| ---------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ERR 1      | UNKNOWN_COMMAND | The command does not match a known command:<br>an empty line or a line with only spaces, `start`, `BEGIN`, `START 50`, `&&&` ...                                                                   |
+| ERR 2      | INVALID_FORMAT  | The command starts or ends with space character or extra space character between command words: <br>` START`, `START `, `SET  SPEED 10`<br>The `SET SPEED` parameter is missing or not an integer. |
+| ERR 3      | OUT_OF_RANGE    | The parameter is out of range from 0 to 100                                                                                                                                                        |
+| ERR 4      | NOT_ALLOWED     | The command is valid but not allowed in the current state, for example `START` when the speed is 0 or the device is already RUNNING, or any command except `RESET` and `STATUS` in ERROR.          |
+| ERR 5      | BUSY            | The device is occupied by one client, so a second client that tries to connect receives this error and is disconnected.                                                                            |
+
+
+## 6. State Transitions
+
+
+| Current state | `START`                                    | `STOP`            | `SET SPEED n` (1–100)    | `SET SPEED 0`         | `FAULT`            | `RESET`               | `STATUS`  |
+| ------------- | ------------------------------------------ | ----------------- | ------------------------ | --------------------- | ------------------ | --------------------- | --------- |
+| **IDLE**      | speed > 0: → RUNNING<br>speed = 0: `ERR 4` | stays IDLE        | stays IDLE, speed = n    | stays IDLE, speed = 0 | → ERROR, speed = 0 | stays IDLE, speed = 0 | no change |
+| **RUNNING**   | `ERR 4`                                    | → IDLE, speed = 0 | stays RUNNING, speed = n | → IDLE, speed = 0     | → ERROR, speed = 0 | → IDLE, speed = 0     | no change |
+| **ERROR**     | `ERR 4`                                    | `ERR 4`           | `ERR 4`                  | `ERR 4`               | `ERR 4`            | → IDLE, speed = 0     | no change |
+
+
+```mermaid
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> RUNNING : START
+    RUNNING --> IDLE : STOP / SET SPEED 0 / RESET
+    RUNNING --> ERROR : FAULT
+    ERROR --> IDLE : RESET
+    IDLE --> ERROR : FAULT
+```
+
+
+## 7. Connection Behavior
+
+The device accepts one client at a time. If a second client connects while another client is connected, the device sends `ERR 5 BUSY` to the second client and closes TCP connection. The second client does not receive `READY`, and the device state does not change.
