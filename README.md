@@ -1,6 +1,6 @@
 # motor-controller-test-suite
 
-A simulated industrial motor controller in Java (TCP text protocol), tested with JUnit 5 and AssertJ.
+A simulated industrial motor controller in Java (TCP text protocol), tested with JUnit and AssertJ.
 
 > 🚧 Work in progress. The protocol specification is complete; the simulator and tests are being built.
 
@@ -30,4 +30,4 @@ See [docs/protocol.md](docs/protocol.md) for the full specification.
 
 ## Tech stack
 
-Java 25 · Maven (Maven Wrapper) · JUnit 5 · AssertJ · GitHub Actions · Allure
+Java 25 · Maven (Maven Wrapper) · JUnit · AssertJ · GitHub Actions · Allure
