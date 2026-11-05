@@ -162,4 +162,4 @@ stateDiagram-v2
 
 ## 7. Connection Behavior
 
-The device accepts one client at a time. If a second client connects while another client is connected, the device sends `ERR 5 BUSY` to the second client and closes TCP connection. The second client does not receive `READY`, and the device state does not change.
+The device accepts one client at a time. If a second client connects while another client is connected, the device sends `ERR 4 BUSY` to the second client and closes TCP connection. The second client does not receive `READY`, and the device state does not change.
