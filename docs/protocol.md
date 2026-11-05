@@ -164,3 +164,4 @@ stateDiagram-v2
 ## 7. Connection Behavior
 
 The device accepts one client at a time. If a second client connects while another client is connected, the device sends `ERR 4 BUSY` to the second client and closes TCP connection. The second client does not receive `READY`, and the device state does not change.
+When the client disconnects, the motor stops: the device goes to IDLE with speed 0. If the device is in ERROR, it stays in ERROR until a client sends RESET.
