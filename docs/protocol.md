@@ -22,20 +22,14 @@ The device checks each line in this order and returns the first error that appli
 2. The `SET SPEED` parameter is outside 0–100 → `ERR 2` 
 3. The command is not allowed in the current state → `ERR 3`
 
-### Commands and parameters
-
-- A line must match one of the known commands exactly, including the number of parameters; otherwise the device returns `ERR 1`. Commands are uppercase only, so `start` returns `ERR 1`.
-- Missing parameter returns `ERR 2`.
-- A numeric parameter must be an integer (a leading minus sign is allowed); otherwise the device returns `ERR 2`.
-- A numeric parameter must be between 0 and 100; otherwise the device returns `ERR 3`.
 
 ### Replies
 
 Every reply ends with `\n`. There are two types of reply:
-- Success: `OK STATE=<state> SPEED=<speed>`,
+- Success: `OK STATE=<state> SPEED=<speed>`
   for example `OK STATE=RUNNING SPEED=50`
 - Error: `ERR <code> <NAME>`
-  for example `ERR 3 OUT_OF_RANGE`
+  for example `ERR 2 OUT_OF_RANGE`
 
 ## 3. States
 
@@ -83,7 +77,7 @@ Note: an `ERR` reply to an invalid command does not change the state. Only `FAUL
 - **Success response:** `OK STATE=<state> SPEED=<n>` 
 - **Errors:** 
    - `ERR 2 OUT_OF_RANGE`: the set speed is out of range from 0 to 100. For example `SET SPEED 110` or `SET SPEED -10`
-   - `ERR 1 INVALID_COMMAND`: the line does not exactly match SET SPEED <n>. 
+   - `ERR 1 INVALID_COMMAND`: the line does not exactly match `SET SPEED <n>`. 
     Example: `SET SPEED 10.5` 
     Example: `SET SPEED `  ( trailing space )
     Example `SPEED 10` ( `SET` is missing )  or  `SET SPEED` (parameter missing)
@@ -100,7 +94,7 @@ Note: an `ERR` reply to an invalid command does not change the state. Only `FAUL
 - **Description:** Returns the current state and speed. The state and speed do not change.
 - **Success response:** `OK STATE=<state> SPEED=<speed>` 
 - **Errors:** 
-   - `ERR 1 INVALID_COMMAND`: unknown command, for example `STATUS 50`    
+   - `ERR 1 INVALID_COMMAND`: a parameter is given, for example `STATUS 50`    
 - **Example:** 
    - Send `STATUS`, receive `OK STATE=IDLE SPEED=10` 
    - Send `STATUS`, receive `OK STATE=ERROR SPEED=0` 
@@ -151,7 +145,7 @@ Note: an `ERR` reply to an invalid command does not change the state. Only `FAUL
 
 | Current state | `START`                                    | `STOP`            | `SET SPEED n` (1–100)    | `SET SPEED 0`         | `FAULT`            | `RESET`               | `STATUS`  |
 | ------------- | ------------------------------------------ | ----------------- | ------------------------ | --------------------- | ------------------ | --------------------- | --------- |
-| **IDLE**      | speed > 0: → RUNNING<br>speed = 0: `ERR 3` | stays IDLE        | stays IDLE, speed = n    | stays IDLE, speed = 0 | → ERROR, speed = 0 | stays IDLE, speed = 0 | no change |
+| **IDLE**      | speed > 0: → RUNNING<br>speed = 0: `ERR 3` | stays IDLE， speed = 0 | stays IDLE, speed = n    | stays IDLE, speed = 0 | → ERROR, speed = 0 | stays IDLE, speed = 0 | no change |
 | **RUNNING**   | `ERR 3`                                    | → IDLE, speed = 0 | stays RUNNING, speed = n | → IDLE, speed = 0     | → ERROR, speed = 0 | → IDLE, speed = 0     | no change |
 | **ERROR**     | `ERR 3`                                    | `ERR 3`           | `ERR 3`                  | `ERR 3`               | `ERR 3`            | → IDLE, speed = 0     | no change |
 
